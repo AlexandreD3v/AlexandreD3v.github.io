@@ -1,0 +1,19 @@
+---
+import { profile, type LocaleContent } from '../data/site';
+
+interface Props {
+  copy: LocaleContent;
+}
+
+const { copy } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="shell">
+    <p>{year} · {profile.name}. {copy.footer.rights}</p>
+    <p>
+      <a href={profile.github.url}>{profile.github.login}</a>
+    </p>
+  </div>
+</footer>

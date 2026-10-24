@@ -1,0 +1,43 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { content, defaultLocale, profile } from '../../data/site';
+import { formatDate } from '../../lib/format';
+
+const copy = content[defaultLocale];
+const posts = (await getCollection('blog', ({ data }) => data.draft !== true)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+
+<BaseLayout title={`${copy.blog.title} · ${profile.name}`} description={copy.blog.description} copy={copy}>
+  <section class="page-intro">
+    <div class="shell">
+      <p class="kicker">{profile.name}</p>
+      <h1>{copy.blog.title}</h1>
+      <p class="section-lead">{copy.blog.lead}</p>
+      {
+        posts.length === 0 ? (
+          <div class="empty">
+            <p class="bio">{copy.blog.empty}</p>
+            <p>{copy.blog.emptyHint}</p>
+          </div>
+        ) : (
+          <ul class="post-list">
+            {posts.map((post) => (
+              <li>
+                <a href={`/blog/${post.id}`}>
+                  <h2>{post.data.title}</h2>
+                  <p>{post.data.description}</p>
+                  <time datetime={post.data.pubDate.toISOString()}>
+                    {copy.blog.published} {formatDate(post.data.pubDate.toISOString(), defaultLocale)}
+                  </time>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>

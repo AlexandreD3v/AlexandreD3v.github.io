@@ -1,0 +1,42 @@
+---
+import { profile, type LocaleContent } from '../data/site';
+
+interface Props {
+  copy: LocaleContent;
+  pathname: string;
+}
+
+const { copy, pathname } = Astro.props;
+const blogCurrent = pathname === '/blog' || pathname.startsWith('/blog/');
+---
+
+<header class="site-header">
+  <div class="shell bar">
+    <a class="brand" href="/#inicio">{profile.name}</a>
+    <button
+      class="theme-toggle"
+      type="button"
+      data-theme-toggle
+      aria-label={copy.themeToggle}
+      data-label-light={copy.themeToDark}
+      data-label-dark={copy.themeToLight}
+    >
+      <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+        <path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 7 7 0 1 0 21 14.5z"></path>
+      </svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="12" cy="12" r="4"></circle>
+        <path d="M12 3v1.6M12 19.4V21M4.9 4.9l1.1 1.1M18 18l1.1 1.1M3 12h1.6M19.4 12H21M4.9 19.1 6 18M18 6l1.1-1.1"></path>
+      </svg>
+    </button>
+    <nav class="nav" aria-label={copy.navLabel}>
+      {
+        copy.nav.map((item) => (
+          <a href={item.href} aria-current={item.href === '/blog' && blogCurrent ? 'page' : undefined}>
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</header>
