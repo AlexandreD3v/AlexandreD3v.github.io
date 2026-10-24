@@ -1,0 +1,119 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { profile, type LocaleContent } from '../data/site';
+
+interface Props {
+  title: string;
+  description: string;
+  copy: LocaleContent;
+  noindex?: boolean;
+  ogType?: 'website' | 'article';
+  publishedTime?: string;
+  jsonLd?: Record<string, unknown>;
+}
+
+const {
+  title,
+  description,
+  copy,
+  noindex = false,
+  ogType = 'website',
+  publishedTime,
+  jsonLd,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const image = new URL('/og.png', Astro.site);
+const json = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : null;
+---
+
+<!doctype html>
+<html lang={copy.htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={profile.name} />
+    <link rel="canonical" href={canonical.href} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#f3f0e8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#101412" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    {noindex ? <meta name="robots" content="noindex" /> : <meta name="robots" content="index,follow" />}
+    <meta property="og:type" content={ogType} />
+    <meta property="og:locale" content={copy.ogLocale} />
+    <meta property="og:site_name" content={profile.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:image" content={image.href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={copy.seo.ogImageAlt} />
+    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image.href} />
+    <link rel="me" href={profile.github.url} />
+    <link rel="me" href={profile.linkedin.url} />
+    <link rel="preconnect" href="https://avatars.githubusercontent.com" />
+    {json && <script type="application/ld+json" set:html={json} />}
+    <script is:inline>
+      (function () {
+        var stored = null;
+        try {
+          stored = localStorage.getItem('theme');
+        } catch (e) {}
+        var theme =
+          stored === 'light' || stored === 'dark'
+            ? stored
+            : window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light';
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">{copy.skip}</a>
+    <Header copy={copy} pathname={Astro.url.pathname} />
+    <main id="conteudo">
+      <slot />
+    </main>
+    <Footer copy={copy} />
+    <script is:inline>
+      (function () {
+        var button = document.querySelector('[data-theme-toggle]');
+        if (!button) return;
+        var root = document.documentElement;
+        function current() {
+          return root.dataset.theme === 'dark' ? 'dark' : 'light';
+        }
+        function sync() {
+          var theme = current();
+          button.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+          var label = theme === 'dark' ? button.getAttribute('data-label-dark') : button.getAttribute('data-label-light');
+          if (label) button.setAttribute('aria-label', label);
+        }
+        button.addEventListener('click', function () {
+          var next = current() === 'dark' ? 'light' : 'dark';
+          try {
+            localStorage.setItem('theme', next);
+          } catch (e) {}
+          root.dataset.theme = next;
+          root.style.colorScheme = next;
+          sync();
+        });
+        sync();
+      })();
+    </script>
+  </body>
+</html>

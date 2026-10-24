@@ -1,0 +1,41 @@
+---
+import { isPlaceholderEmail, profile, type LocaleContent } from '../data/site';
+
+interface Props {
+  copy: LocaleContent;
+}
+
+const { copy } = Astro.props;
+const placeholder = isPlaceholderEmail(profile.email);
+---
+
+<section class="section" id="contato" aria-labelledby="contato-title">
+  <div class="shell">
+    <h2 class="section-title" id="contato-title">
+      <span class="index">{copy.contact.index}</span>
+      {copy.contact.title}
+    </h2>
+    <p class="section-lead">{copy.contact.lead}</p>
+    <div class="contact-panel">
+      <div>
+        <p class="kicker">{copy.contact.email}</p>
+        <a class="email" href={`mailto:${profile.email}`}>{profile.email}</a>
+        {placeholder && <p class="placeholder-note">{copy.contact.emailNote}</p>}
+      </div>
+      <p>
+        <span class="kicker">{copy.contact.location}</span><br />
+        {profile.location}
+      </p>
+      <div class="contact-links">
+        <a class="button" href={profile.github.url} target="_blank" rel="noopener noreferrer">
+          {copy.github}
+          <span class="sr-only">({copy.openNewTab})</span>
+        </a>
+        <a class="button" href={profile.linkedin.url} target="_blank" rel="noopener noreferrer">
+          {copy.linkedin}
+          <span class="sr-only">({copy.openNewTab})</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

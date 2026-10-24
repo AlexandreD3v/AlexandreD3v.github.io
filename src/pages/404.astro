@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { content, defaultLocale, profile } from '../data/site';
+
+const copy = content[defaultLocale];
+---
+
+<BaseLayout
+  title={`${copy.notFound.title} · ${profile.name}`}
+  description={copy.notFound.description}
+  copy={copy}
+  noindex={true}
+>
+  <section class="page-intro">
+    <div class="shell">
+      <p class="kicker">404</p>
+      <h1>{copy.notFound.title}</h1>
+      <p class="bio">{copy.notFound.body}</p>
+      <p class="actions">
+        <a class="button button-primary" href="/">{copy.notFound.back}</a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Contact from '../components/Contact.astro';
+import Hero from '../components/Hero.astro';
+import Projects from '../components/Projects.astro';
+import Skills from '../components/Skills.astro';
+import Timeline from '../components/Timeline.astro';
+import { content, defaultLocale, isPlaceholderEmail, profile } from '../data/site';
+import { loadPortfolioData } from '../lib/portfolio';
+
+const copy = content[defaultLocale];
+const data = await loadPortfolioData(copy.projects.featuredSummary);
+
+const jsonLd: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.name,
+  jobTitle: profile.role,
+  url: 'https://alexandred3v.github.io/',
+  image: profile.avatarUrl,
+  homeLocation: {
+    '@type': 'Country',
+    name: profile.location,
+  },
+  address: {
+    '@type': 'PostalAddress',
+    addressCountry: profile.countryCode,
+  },
+  sameAs: [profile.github.url, profile.linkedin.url],
+  knowsAbout: copy.skills.groups.flatMap((group) => group.items),
+};
+
+if (!isPlaceholderEmail(profile.email)) {
+  jsonLd.email = profile.email;
+}
+---
+
+<BaseLayout
+  title={copy.seo.title}
+  description={copy.seo.description}
+  copy={copy}
+  jsonLd={jsonLd}
+>
+  <Hero copy={copy} />
+  <Projects copy={copy} extension={data.extension} repositories={data.repositories} />
+  <Skills copy={copy} />
+  <Timeline copy={copy} />
+  <Contact copy={copy} />
+</BaseLayout>

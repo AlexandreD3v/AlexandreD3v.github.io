@@ -1,0 +1,129 @@
+---
+import { defaultLocale, type LocaleContent } from '../data/site';
+import { formatDate, formatInteger, formatRating } from '../lib/format';
+import type { ExtensionCard, RepoResult } from '../lib/types';
+
+interface Props {
+  copy: LocaleContent;
+  extension: ExtensionCard;
+  repositories: RepoResult;
+}
+
+const { copy, extension, repositories } = Astro.props;
+const projects = copy.projects;
+const ratingCount = extension.ratingCount == null ? null : Math.round(extension.ratingCount);
+const showRating = extension.live && extension.rating != null && ratingCount != null && ratingCount > 0;
+const ratingText =
+  showRating && extension.rating != null && ratingCount != null
+    ? `${projects.ratingLabel} ${formatRating(extension.rating, defaultLocale)} de 5, ${formatInteger(ratingCount, defaultLocale)} ${ratingCount === 1 ? projects.ratingSingular : projects.ratingPlural}.`
+    : '';
+---
+
+<section class="section" id="projetos" aria-labelledby="projetos-title">
+  <div class="shell">
+    <h2 class="section-title" id="projetos-title">
+      <span class="index">{projects.index}</span>
+      {projects.title}
+    </h2>
+    <p class="section-lead">{projects.lead}</p>
+
+    <article class="featured">
+      <div>
+        <p class="featured-kicker">{projects.featuredKicker}</p>
+        <h3 class="featured-title">{extension.name}</h3>
+        <p class="featured-summary">{extension.summary}</p>
+        <div class="featured-links">
+          <a class="button button-primary" href={extension.marketplaceUrl} target="_blank" rel="noopener noreferrer">
+            {projects.marketplace}
+            <span class="sr-only">({copy.openNewTab})</span>
+          </a>
+          <a class="button" href={extension.repoUrl} target="_blank" rel="noopener noreferrer">
+            {projects.repository}
+            <span class="sr-only">({copy.openNewTab})</span>
+          </a>
+        </div>
+      </div>
+      <div class="stats">
+        {
+          extension.live && extension.installs != null ? (
+            <p class="install-stat">
+              <span class="stat-value">{formatInteger(extension.installs, defaultLocale)}</span>
+              <span class="stat-label">{projects.installs}</span>
+            </p>
+          ) : (
+            <p class="notice">{projects.statsUnavailable}</p>
+          )
+        }
+        {
+          showRating && extension.rating != null && ratingCount != null ? (
+            <p class="rating">
+              <span class="sr-only">{ratingText}</span>
+              <span class="stars" style={`--score: ${extension.rating}`} aria-hidden="true">
+                ★★★★★
+              </span>
+              <span aria-hidden="true">{formatRating(extension.rating, defaultLocale)}</span>
+              <span class="stat-label" aria-hidden="true">
+                ({formatInteger(ratingCount, defaultLocale)}{' '}
+                {ratingCount === 1 ? projects.ratingSingular : projects.ratingPlural})
+              </span>
+            </p>
+          ) : (
+            extension.live && <p class="stat-label">{projects.noRatings}</p>
+          )
+        }
+        {
+          extension.version && (
+            <p class="version">
+              <span class="sr-only">{projects.version} </span>
+              v{extension.version}
+            </p>
+          )
+        }
+      </div>
+    </article>
+
+    {
+      repositories.live ? (
+        <p class="repo-count">
+          <strong>{formatInteger(repositories.repos.length, defaultLocale)}</strong> {projects.repoCount}
+        </p>
+      ) : (
+        <p class="notice">{projects.reposUnavailable}</p>
+      )
+    }
+
+    <div class="repo-grid">
+      {
+        repositories.repos.map((repo) => (
+          <article class="repo-card">
+            <h3>
+              <a href={repo.url} target="_blank" rel="noopener noreferrer">
+                {repo.name}
+                <span class="sr-only"> ({copy.openNewTab})</span>
+              </a>
+            </h3>
+            <p class="description">{repo.description ?? projects.noDescription}</p>
+            <p class="repo-meta">
+              {repo.language && (
+                <span>
+                  <span class="sr-only">{projects.language}: </span>
+                  {repo.language}
+                </span>
+              )}
+              {repo.stars != null && repo.stars > 0 && (
+                <span>
+                  {formatInteger(repo.stars, defaultLocale)} {projects.stars}
+                </span>
+              )}
+              {repo.pushedAt && (
+                <span>
+                  {projects.updated} <time datetime={repo.pushedAt}>{formatDate(repo.pushedAt, defaultLocale)}</time>
+                </span>
+              )}
+            </p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

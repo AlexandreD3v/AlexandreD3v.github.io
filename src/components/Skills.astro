@@ -1,0 +1,33 @@
+---
+import type { LocaleContent } from '../data/site';
+
+interface Props {
+  copy: LocaleContent;
+}
+
+const { copy } = Astro.props;
+---
+
+<section class="section" id="skills" aria-labelledby="skills-title">
+  <div class="shell">
+    <h2 class="section-title" id="skills-title">
+      <span class="index">{copy.skills.index}</span>
+      {copy.skills.title}
+    </h2>
+    <p class="section-lead">{copy.skills.lead}</p>
+    <div class="skill-grid">
+      {
+        copy.skills.groups.map((group) => (
+          <article class="skill-card">
+            <h3>{group.title}</h3>
+            <ul>
+              {group.items.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
