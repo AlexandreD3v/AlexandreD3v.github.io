@@ -18,7 +18,7 @@ const { copy } = Astro.props;
     <div class="skill-grid">
       {
         copy.skills.groups.map((group) => (
-          <article class="skill-card">
+          <article class:list={['skill-card', { 'is-focus': group.emphasis }]}>
             <h3>{group.title}</h3>
             <ul>
               {group.items.map((item) => (

@@ -581,6 +581,15 @@ h1 {
   border-radius: 1.2rem;
 }
 
+.skill-card.is-focus {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+}
+
+.skill-card.is-focus li {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  font-weight: 600;
+}
+
 .skill-card h3 {
   font-size: 1.15rem;
   letter-spacing: -0.02em;

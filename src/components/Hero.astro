@@ -44,15 +44,10 @@ const { copy } = Astro.props;
           <span class="sr-only">({copy.openNewTab})</span>
         </a>
         {
-          profile.cvUrl ? (
+          profile.cvUrl && (
             <a class="button" href={profile.cvUrl}>
               {copy.cv}
             </a>
-          ) : (
-            <button class="button" type="button" disabled>
-              {copy.cv}
-              <span class="button-hint">{copy.cvSoon}</span>
-            </button>
           )
         }
       </div>
