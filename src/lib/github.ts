@@ -14,6 +14,7 @@ interface GitHubRepo {
   fork?: boolean;
   archived?: boolean;
   private?: boolean;
+  topics?: string[];
 }
 
 function fallbackRepos(): RepoCard[] {
@@ -57,19 +58,79 @@ function nextPage(link: string | null): string | null {
   return null;
 }
 
+function listed(names: readonly string[], name: string): boolean {
+  const target = name.toLowerCase();
+  return names.some((item) => item.toLowerCase() === target);
+}
+
+function repoText(repo: GitHubRepo): string {
+  const topics = Array.isArray(repo.topics) ? repo.topics.join(' ') : '';
+  return `${repo.name ?? ''} ${repo.description ?? ''} ${topics}`.toLowerCase();
+}
+
+/** Denylist vence allowlist. Allowlist vence o filtro por palavras. */
+export function repoMatchesFocus(repo: { name: string; description: string | null; language: string | null; topics?: string[] }): boolean {
+  const name = repo.name;
+  if (listed(profile.repoFilter.deny, name)) return false;
+  if (listed(profile.repoFilter.allow, name)) return true;
+
+  const text = `${name} ${repo.description ?? ''} ${(repo.topics ?? []).join(' ')}`.toLowerCase();
+  if (profile.repoFilter.excludeKeywords.some((keyword) => text.includes(keyword.toLowerCase()))) return false;
+
+  const language = (repo.language ?? '').toLowerCase();
+  return profile.repoFilter.includeKeywords.some((keyword) => {
+    const needle = keyword.toLowerCase();
+    return text.includes(needle) || language === needle;
+  });
+}
+
 function toCard(repo: GitHubRepo): RepoCard | null {
   if (typeof repo.name !== 'string' || typeof repo.html_url !== 'string') return null;
   if (repo.fork !== false || repo.archived !== false || repo.private === true) return null;
+  if (!repoMatchesFocus({
+    name: repo.name,
+    description: typeof repo.description === 'string' ? repo.description : null,
+    language: typeof repo.language === 'string' ? repo.language : null,
+    topics: Array.isArray(repo.topics) ? repo.topics : [],
+  })) {
+    return null;
+  }
+
+  const description =
+    typeof repo.description === 'string' && repo.description.trim()
+      ? repo.description
+      : (profile.descriptionOverrides[repo.name] ?? null);
 
   return {
     name: repo.name,
-    description: typeof repo.description === 'string' && repo.description.trim() ? repo.description : null,
+    description,
     url: repo.html_url,
     language: typeof repo.language === 'string' ? repo.language : null,
     stars: typeof repo.stargazers_count === 'number' ? repo.stargazers_count : 0,
     forks: typeof repo.forks_count === 'number' ? repo.forks_count : 0,
     pushedAt: typeof repo.pushed_at === 'string' ? repo.pushed_at : null,
   };
+}
+
+function exclusionReason(repo: GitHubRepo): string | null {
+  if (typeof repo.name !== 'string') return null;
+  if (repo.private === true) return null;
+  if (repo.fork !== false) return 'fork';
+  if (repo.archived !== false) return 'arquivado';
+  const card = {
+    name: repo.name,
+    description: typeof repo.description === 'string' ? repo.description : null,
+    language: typeof repo.language === 'string' ? repo.language : null,
+    topics: Array.isArray(repo.topics) ? repo.topics : [],
+  };
+  if (!repoMatchesFocus(card)) {
+    if (listed(profile.repoFilter.deny, repo.name)) return 'denylist';
+    if (profile.repoFilter.excludeKeywords.some((keyword) => repoText(repo).includes(keyword.toLowerCase()))) {
+      return 'palavra excluída';
+    }
+    return 'fora do recorte';
+  }
+  return null;
 }
 
 async function fetchRepos(): Promise<RepoCard[]> {
@@ -82,6 +143,7 @@ async function fetchRepos(): Promise<RepoCard[]> {
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const cards: RepoCard[] = [];
+  const excluded: string[] = [];
   let url: string | null =
     `https://api.github.com/users/${encodeURIComponent(profile.github.login)}/repos?per_page=100&type=owner&sort=updated`;
 
@@ -93,17 +155,26 @@ async function fetchRepos(): Promise<RepoCard[]> {
       throw new Error('Resposta inesperada da API do GitHub.');
     }
     for (const item of payload) {
-      const card = toCard(item as GitHubRepo);
+      const repo = item as GitHubRepo;
+      const reason = exclusionReason(repo);
+      if (reason && repo.name) {
+        excluded.push(`${repo.name} (${reason})`);
+        continue;
+      }
+      const card = toCard(repo);
       if (card) cards.push(card);
     }
     url = nextPage(link);
   }
 
   if (cards.length === 0) {
-    throw new Error('Nenhum repositório público após excluir forks e arquivados.');
+    throw new Error('Nenhum repositório no recorte NetSuite, TypeScript ou VS Code.');
   }
 
-  return sortRepos(cards);
+  const sorted = sortRepos(cards);
+  console.info(`[portfolio] Repositórios exibidos: ${sorted.map((repo) => repo.name).join(', ')}`);
+  console.info(`[portfolio] Repositórios excluídos: ${excluded.join(', ')}`);
+  return sorted;
 }
 
 export async function loadRepositories(): Promise<RepoResult> {

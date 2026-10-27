@@ -16,21 +16,20 @@ Quase tudo que é pessoal está em [`src/data/site.ts`](src/data/site.ts):
 
 | O que mudar | Onde |
 | --- | --- |
-| E-mail | `profile.email` — hoje é o placeholder `COLOQUE_SEU_EMAIL_AQUI@exemplo.com` |
-| Bio | `content['pt-BR'].hero.bio` e apague `bioNote` quando o texto for o definitivo |
-| Currículo | coloque o PDF em `public/cv.pdf` e defina `profile.cvUrl` como `'/cv.pdf'` |
-| Selo “disponível para projetos” | `profile.availableForProjects` |
+| E-mail | `profile.email` — `alexandre.j.correa@hotmail.com`. O telefone do perfil não entra no site |
+| Bio, skills, idiomas, certificações e trajetória | `content['pt-BR']` |
+| Currículo | opcional: PDF em `public/cv.pdf` e `profile.cvUrl` como `'/cv.pdf'`. Sem arquivo, o botão não aparece |
+| Selo “disponível para projetos” | `profile.availableForProjects` (hoje `false`) |
 | Links | `profile.github` e `profile.linkedin` |
 | Extensão em destaque | `profile.featuredExtension` e `content['pt-BR'].projects.featuredSummary` |
+| Quais repositórios aparecem | `profile.repoFilter` (`allow`, `deny`, `includeKeywords`, `excludeKeywords`) |
 | Ordem dos repositórios | `profile.priorityRepos` |
 | Lista usada se a API do GitHub falhar | `profile.fallbackRepos` |
-| Skills | `content['pt-BR'].skills.groups` |
-| Formação e experiência | `content['pt-BR'].timeline.items` — TADS no IFSP está lá; período, campus e cargos são placeholders |
 | Textos de botões, navegação e contato | o restante de `content['pt-BR']` |
 
 Foto atual: avatar do GitHub em `profile.avatarUrl` (`https://avatars.githubusercontent.com/u/66167971?v=4`). Troque a URL quando tiver outra imagem.
 
-O nome da extensão no card é exatamente **Netsuite - JS Snippets Reload**. Instalações, nota e versão vêm do VS Code Marketplace no momento do build. A grade de projetos vem da API pública do GitHub: sem forks e sem repositórios arquivados, com a lista `priorityRepos` na frente.
+O nome da extensão no card é exatamente **Netsuite - JS Snippets Reload**. Instalações, nota e versão vêm do VS Code Marketplace no momento do build. A grade mostra só repositórios de NetSuite, SuiteScript, TypeScript ou extensões do VS Code: sem forks, sem arquivados, com `repoFilter` em `src/data/site.ts` e `priorityRepos` na frente.
 
 Se uma dessas APIs falhar, o build continua. A extensão aparece sem os números e a grade usa `fallbackRepos`.
 
@@ -91,8 +90,6 @@ No Actions, o `GITHUB_TOKEN` já entra no build para a API do GitHub não cair n
 ## O que fazer na mão
 
 1. **Settings > Pages > Source → GitHub Actions.** Obrigatório para o deploy padrão.
-2. Trocar `profile.email` em `src/data/site.ts`.
-3. Reescrever a bio e os itens de formação/experiência. O TADS no IFSP está citado; período e campus ainda são placeholders.
-4. Opcional: colocar `public/cv.pdf` e apontar `profile.cvUrl` para `'/cv.pdf'`.
-5. Opcional: secret `PAGES_TOKEN` se quiser que o workflow crie o site Pages sozinho.
-6. Fazer merge deste PR em `main` (ou disparar o workflow depois). O deploy não roda na branch do PR.
+2. Opcional: colocar `public/cv.pdf` e apontar `profile.cvUrl` para `'/cv.pdf'`.
+3. Opcional: secret `PAGES_TOKEN` se quiser que o workflow crie o site Pages sozinho.
+4. Fazer merge do PR em `main` (ou disparar o workflow depois). O deploy não roda na branch do PR. O telefone não deve ser acrescentado ao site.

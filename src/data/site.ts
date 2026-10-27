@@ -12,23 +12,20 @@
 
 export const profile = {
   name: 'Alexandre Jackson Corrêa',
-  role: 'Desenvolvedor NetSuite / SuiteScript',
-  location: 'Brasil',
+  role: 'Netsuite Developer @ Qlik',
+  location: 'Campinas, SP',
+  city: 'Campinas',
+  region: 'SP',
   countryCode: 'BR',
   avatarUrl: 'https://avatars.githubusercontent.com/u/66167971?v=4',
+  email: 'alexandre.j.correa@hotmail.com',
   /**
-   * PLACEHOLDER DE E-MAIL — substitua pelo endereço público de contato.
-   * Enquanto o valor contiver COLOQUE_SEU_EMAIL_AQUI, o site avisa no
-   * contato e o JSON-LD não publica o endereço.
-   */
-  email: 'COLOQUE_SEU_EMAIL_AQUI@exemplo.com',
-  /**
-   * Currículo. Coloque o PDF em `public/cv.pdf` e troque para `'/cv.pdf'`.
-   * `null` mantém o botão visível e desabilitado, com o texto "em breve".
+   * Sem PDF público no perfil. `null` esconde o botão de currículo.
+   * Para publicar um arquivo, coloque-o em `public/cv.pdf` e use `'/cv.pdf'`.
    */
   cvUrl: null as string | null,
-  /** GitHub marca o perfil como hireable. `false` esconde o selo. */
-  availableForProjects: true,
+  /** Empregado na Qlik. O selo de disponibilidade fica oculto. */
+  availableForProjects: false,
   github: {
     login: 'AlexandreD3v',
     url: 'https://github.com/AlexandreD3v',
@@ -42,20 +39,52 @@ export const profile = {
     repo: 'AlexandreD3v/ns-js-snippets_reload',
   },
   /**
-   * Estes repositórios aparecem primeiro. O restante dos públicos
-   * (sem forks e sem arquivados) segue por data de push.
+   * Recorte da grade. Forks e arquivados saem antes.
+   * Ordem: denylist, depois allowlist, depois palavras de exclusão,
+   * depois palavras de inclusão no nome, na descrição, nos tópicos ou na linguagem.
+   */
+  repoFilter: {
+    allow: ['snippetGenerator'],
+    deny: [
+      'user-api',
+      'praticasNestJs',
+      'nest_startover',
+      'tuto_nestJS',
+      'TADS_IFSP_CPS',
+      'paginapessoal',
+      'gitSite',
+      'DWE',
+      'casamento',
+      'meetrect',
+      'node',
+      'tests',
+      'nsChallenges',
+      'AlexandreD3v.github.io',
+    ],
+    includeKeywords: ['netsuite', 'suitescript', 'suiteql', 'typescript', 'vscode', 'vs code', 'visual studio code'],
+    excludeKeywords: ['nestjs', 'nest.js'],
+  },
+  /**
+   * Ordem na grade. O que não estiver aqui segue por data de push.
    */
   priorityRepos: [
     'ns-ts-snippets_reload',
+    'ns-js-snippets_reload',
+    'snippetGenerator',
     'nsTsDev',
     'base_ns_ts',
     'NetsuiteSuiteScriptsJS',
-    'snippetGenerator',
-    'user-api',
-    'praticasNestJs',
+    'netsuite_dev',
+    'firstVsCodeExtension',
   ],
   /**
-   * Usado só se a API do GitHub falhar. Descrições copiadas do GitHub.
+   * Descrição quando o GitHub não publica uma. Só o que está no README do repositório.
+   */
+  descriptionOverrides: {
+    snippetGenerator: 'Gerador de snippets do VS Code para SuiteScript (Client Script, User Event e Suitelet).',
+  } as Record<string, string>,
+  /**
+   * Usado só se a API do GitHub falhar. Já está no recorte NetSuite / TypeScript / VS Code.
    */
   fallbackRepos: [
     {
@@ -85,21 +114,9 @@ export const profile = {
     },
     {
       name: 'snippetGenerator',
-      description: null,
+      description: 'Gerador de snippets do VS Code para SuiteScript (Client Script, User Event e Suitelet).',
       url: 'https://github.com/AlexandreD3v/snippetGenerator',
       language: 'JavaScript',
-    },
-    {
-      name: 'user-api',
-      description: 'User-api - prática de desenvolvimento nest.js',
-      url: 'https://github.com/AlexandreD3v/user-api',
-      language: 'TypeScript',
-    },
-    {
-      name: 'praticasNestJs',
-      description: null,
-      url: 'https://github.com/AlexandreD3v/praticasNestJs',
-      language: 'TypeScript',
     },
     {
       name: 'ns-js-snippets_reload',
@@ -108,10 +125,16 @@ export const profile = {
       language: 'JavaScript',
     },
     {
-      name: 'TADS_IFSP_CPS',
-      description: 'Conteúdo das atividades do curso de TADS do IFSP',
-      url: 'https://github.com/AlexandreD3v/TADS_IFSP_CPS',
-      language: 'C',
+      name: 'netsuite_dev',
+      description: null,
+      url: 'https://github.com/AlexandreD3v/netsuite_dev',
+      language: null,
+    },
+    {
+      name: 'firstVsCodeExtension',
+      description: 'Building my first vsCode extension',
+      url: 'https://github.com/AlexandreD3v/firstVsCodeExtension',
+      language: null,
     },
   ],
 };
@@ -136,6 +159,8 @@ export interface TimelineItem {
 export interface SkillGroup {
   title: string;
   items: string[];
+  emphasis?: boolean;
+  schema?: boolean;
 }
 
 export interface NavItem {
@@ -263,23 +288,23 @@ export const content = defineContent({
     cvSoon: 'em breve',
     openNewTab: 'abre em uma nova aba',
     seo: {
-      title: 'Alexandre Jackson Corrêa · Desenvolvedor NetSuite / SuiteScript',
+      title: 'Alexandre Jackson Corrêa · Netsuite Developer @ Qlik',
       description:
-        'Portfólio de Alexandre Jackson Corrêa, desenvolvedor NetSuite / SuiteScript no Brasil. Projetos, skills, formação e contato.',
-      ogImageAlt: 'Alexandre Jackson Corrêa, desenvolvedor NetSuite / SuiteScript',
+        'Alexandre Jackson Corrêa, Netsuite Developer na Qlik, em Campinas. Customizações de NetSuite com TypeScript, SuiteScript, SuiteQL e integrações.',
+      ogImageAlt: 'Alexandre Jackson Corrêa, Netsuite Developer @ Qlik, Campinas, SP',
     },
     hero: {
       kicker: 'Sobre',
-      bio: 'Desenvolvedor focado em NetSuite e SuiteScript, no Brasil. Trabalho com customização de contas, scripts e integrações do ERP.',
-      bioNote: 'Placeholder — reescreva a bio e apague bioNote em src/data/site.ts.',
+      bio: 'Sou desenvolvedor com mais de 10 anos em tecnologia da informação, hoje com foco em JavaScript e TypeScript para customizações de NetSuite. Comecei em 2012 no suporte e no helpdesk, passei por Java web para gestão de projetos e por aplicativos híbridos com Ionic, e entrei no ERP como estagiário na FUNCAMP/Unicamp, em NetSuite e no Dolibarr. Depois atuei como desenvolvedor NetSuite júnior na Quod. Tenho base em PHP, C# e MySQL, certificação Microsoft em Windows Operating System Fundamentals, e sigo entusiasta: todo desafio é possível e conhecimento nunca é demais.',
+      bioNote: '',
     },
     projects: {
       index: '02',
       title: 'Projetos',
-      lead: 'Extensão publicada no VS Code Marketplace e repositórios públicos do GitHub. Forks e arquivados ficam de fora.',
+      lead: 'Extensão publicada no VS Code Marketplace e repositórios de NetSuite, SuiteScript, TypeScript ou extensões do VS Code. Forks, arquivados e o que fica fora desse recorte não entram.',
       featuredKicker: 'Extensão em destaque',
       featuredSummary:
-        'Snippets de SuiteScript para o VS Code, com apoio a módulos N/*, SuiteQL, migração para 2.1, SDF/SuiteCloud CLI e diagnósticos de governança.',
+        'Extensão de VS Code com snippets de SuiteScript 2.x, autocomplete de módulos N/*, SuiteQL, migração para 2.1, SDF/SuiteCloud CLI, diagnósticos de governança e ferramentas opcionais de contexto com IA.',
       installs: 'instalações',
       ratingLabel: 'Avaliação',
       ratingSingular: 'avaliação',
@@ -289,7 +314,7 @@ export const content = defineContent({
       marketplace: 'Marketplace',
       repository: 'Repositório',
       statsUnavailable: 'Estatísticas do Marketplace indisponíveis neste build.',
-      repoCount: 'repositórios públicos, sem forks nem arquivados',
+      repoCount: 'repositórios de NetSuite, TypeScript ou extensões do VS Code',
       reposUnavailable:
         'A API do GitHub não respondeu neste build. A grade abaixo é a lista estática de src/data/site.ts.',
       noDescription: 'Sem descrição publicada.',
@@ -300,61 +325,131 @@ export const content = defineContent({
     skills: {
       index: '03',
       title: 'Skills',
-      lead: 'O que entra no trabalho de NetSuite e o que uso em volta dele.',
+      lead: 'O centro do trabalho é TypeScript, SuiteScript, SuiteQL e integrações. O resto está no currículo e nos repositórios.',
       groups: [
         {
-          title: 'NetSuite',
+          title: 'Em foco',
+          emphasis: true,
+          items: ['TypeScript', 'SuiteScript', 'SuiteQL', 'Integrações (SFTP, REST, ODBC/JDBC)'],
+        },
+        {
+          title: 'Também no currículo',
           items: [
-            'SuiteScript 1.0, 2.x e 2.1',
-            'SuiteQL',
-            'SDF / SuiteCloud CLI',
-            'Map/Reduce e governança',
-            'Integrações',
+            'JavaScript',
+            'Java',
+            'PHP',
+            'C#',
+            'MySQL',
+            'Ionic',
+            'Dolibarr',
+            'Extensões VS Code',
+            'Ferramentas de IA (Codex, ChatGPT Enterprise)',
           ],
         },
         {
-          title: 'Stack',
-          items: ['JavaScript / TypeScript', 'Node.js', 'NestJS', 'Extensões VS Code'],
+          title: 'Idiomas',
+          schema: false,
+          items: ['Português (nativo)', 'Inglês (profissional completo)', 'Espanhol (limitado)'],
+        },
+        {
+          title: 'Certificações',
+          schema: false,
+          items: [
+            'EF SET 51 (CEFR B2)',
+            'Microsoft Exam 349 — Windows Operating System Fundamentals (2012)',
+          ],
         },
       ],
     },
     timeline: {
       index: '04',
       title: 'Formação e experiência',
-      lead: 'Itens marcados como “a preencher” são placeholders. Ajuste período, organização e texto em src/data/site.ts.',
+      lead: 'Cargos, formações e o começo em suporte, como no perfil público.',
       experience: 'Experiência',
       education: 'Formação',
       placeholder: 'A preencher',
       items: [
         {
           type: 'experience',
-          title: 'Desenvolvedor NetSuite / SuiteScript',
-          org: 'Organização a confirmar',
-          period: 'Período a confirmar',
+          title: 'NetSuite Developer',
+          org: 'Qlik',
+          period: 'mai/2026–atual',
+          summary: 'São Paulo, Brasil.',
+        },
+        {
+          type: 'experience',
+          title: 'Senior NetSuite Consultant',
+          org: 'Oracle',
+          period: 'mar/2024–mar/2026',
           summary:
-            'Placeholder. Descreva módulos, scripts, integrações e o tipo de conta em que você atuou.',
-          placeholder: true,
+            'Time ACS Architect, em São Paulo: design e troubleshooting de customizações NetSuite, integrações SFTP, REST, ODBC e JDBC, SuiteQL, refatoração de scripts e uso de ferramentas de IA (Codex e ChatGPT Enterprise).',
+        },
+        {
+          type: 'experience',
+          title: 'Desenvolvedor NetSuite Jr.',
+          org: 'Quod',
+          period: 'fev/2022–mar/2024',
+          summary: 'Soluções financeiras e de crédito, em Barueri. Início da atuação como profissional NetSuite.',
+        },
+        {
+          type: 'experience',
+          title: 'Desenvolvedor web/NetSuite e estagiário',
+          org: 'FUNCAMP — Fundação de Desenvolvimento da Unicamp',
+          period: 'abr/2021–abr/2022',
+          summary:
+            'Campinas. Scripts para o ERP/CRM Oracle NetSuite e para o Dolibarr, gerenciamento de projetos e trilhas de treinamento.',
+        },
+        {
+          type: 'experience',
+          title: 'Web Developer',
+          org: 'PopApps',
+          period: 'abr/2016–nov/2016',
+          summary: 'Desenvolvimento mobile com o framework Ionic, em Florianópolis.',
+        },
+        {
+          type: 'experience',
+          title: 'Programador Java',
+          org: 'Cisterlabs',
+          period: 'jun/2014–fev/2016',
+          summary: 'Manutenção de projetos e correção de bugs em sistemas Java web, em Francisco Beltrão.',
+        },
+        {
+          type: 'experience',
+          title: 'Helpdesk e suporte de TI',
+          org: 'BRLOGIC e Anage Imóveis',
+          period: '2012–2013',
+          summary:
+            'Estágio de suporte na Anage Imóveis (abr/2012–jul/2012) e helpdesk na BRLOGIC (abr/2013–set/2013), em Joinville, no começo da carreira em suporte e helpdesk.',
         },
         {
           type: 'education',
-          title: 'Tecnologia em Análise e Desenvolvimento de Sistemas (TADS)',
+          title: 'CST em Análise e Desenvolvimento de Sistemas',
           org: 'Instituto Federal de São Paulo (IFSP)',
-          period: 'Período a confirmar',
-          summary:
-            'Placeholder de campus e período. As atividades do curso estão no repositório TADS_IFSP_CPS.',
-          placeholder: true,
-          href: 'https://github.com/AlexandreD3v/TADS_IFSP_CPS',
-          linkLabel: 'Repositório do curso',
+          period: '2020',
+          summary: 'Curso Superior de Tecnologia em Análise e Desenvolvimento de Sistemas.',
+        },
+        {
+          type: 'education',
+          title: 'Sistemas de Informação',
+          org: 'Universidade Paranaense',
+          period: '2014–2015',
+          summary: 'Formação incompleta.',
+        },
+        {
+          type: 'education',
+          title: 'Engenharia de Computação',
+          org: 'UniSociesc',
+          period: '2012–2013',
+          summary: 'Bacharelado. Formação incompleta.',
         },
       ],
     },
     contact: {
       index: '05',
       title: 'Contato',
-      lead: 'Para um projeto de NetSuite, SuiteScript ou uma conversa sobre o trabalho.',
+      lead: 'E-mail e perfis profissionais. Campinas, SP.',
       email: 'E-mail',
-      emailNote:
-        'Este endereço é um placeholder. Substitua profile.email em src/data/site.ts.',
+      emailNote: '',
       location: 'Local',
     },
     footer: {

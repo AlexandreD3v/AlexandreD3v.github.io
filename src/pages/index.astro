@@ -19,15 +19,25 @@ const jsonLd: Record<string, unknown> = {
   url: 'https://alexandred3v.github.io/',
   image: profile.avatarUrl,
   homeLocation: {
-    '@type': 'Country',
+    '@type': 'Place',
     name: profile.location,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: profile.city,
+      addressRegion: profile.region,
+      addressCountry: profile.countryCode,
+    },
   },
   address: {
     '@type': 'PostalAddress',
+    addressLocality: profile.city,
+    addressRegion: profile.region,
     addressCountry: profile.countryCode,
   },
   sameAs: [profile.github.url, profile.linkedin.url],
-  knowsAbout: copy.skills.groups.flatMap((group) => group.items),
+  knowsAbout: copy.skills.groups
+    .filter((group) => !('schema' in group) || group.schema !== false)
+    .flatMap((group) => group.items),
 };
 
 if (!isPlaceholderEmail(profile.email)) {
